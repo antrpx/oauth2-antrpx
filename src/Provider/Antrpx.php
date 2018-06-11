@@ -27,6 +27,19 @@ class Antrpx extends AbstractProvider
     const BASE_ANTRPX_AUTH_SERVER_URL = 'https://api.antrpx.io/o';
 
     /**
+     * Default scopes
+     *
+     * @var array
+     */
+    public $defaultScopes = [
+        'accounts:item:read',
+        'profiles:list:read',
+        'profiles:item:read',
+        'metrics:list:read',
+        'metrics:item:read'
+    ];
+
+    /**
      * @param array $options
      * @param array $collaborators
      *
@@ -62,13 +75,17 @@ class Antrpx extends AbstractProvider
 
     protected function getDefaultScopes()
     {
-        return [
-            'accounts:item:read',
-            'profiles:list:read',
-            'profiles:item:read',
-            'metrics:list:read',
-            'metrics:item:read'
-        ];
+        return $this->defaultScopes;
+    }
+
+    /**
+     * Get the string used to separate scopes.
+     *
+     * @return string
+     */
+    protected function getScopeSeparator()
+    {
+        return ' ';
     }
 
     protected function checkResponse(ResponseInterface $response, $data)
