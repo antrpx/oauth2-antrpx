@@ -100,4 +100,14 @@ class AntrpxFootMetrics
             $this->getRightFeetWidth()
         );
     }
+
+    /**
+     * Return all of the metrics available as an array.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->response;
+    }
 }
