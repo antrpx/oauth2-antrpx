@@ -7,6 +7,7 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use Psr\Http\Message\ResponseInterface;
+use UnexpectedValueException;
 
 class Antrpx extends AbstractProvider
 {
@@ -73,9 +74,14 @@ class Antrpx extends AbstractProvider
         return static::BASE_ANTRPX_RESOURCE_SERVER_URL.'/user';
     }
 
-    public function getUserProfilesUrl(AccessToken $token)
+    public function getUserProfileUrl($profileId, AccessToken $token)
     {
-        return static::BASE_ANTRPX_RESOURCE_SERVER_URL.'/user/profiles';
+        return static::BASE_ANTRPX_RESOURCE_SERVER_URL.'/user/profiles/'.$profileId;
+    }
+
+    public function getUserProfileFootMetricsUrl($profileId, AccessToken $token)
+    {
+        return $this->getUserProfileUrl($profileId, $token).'/foot_metrics';
     }
 
     protected function getDefaultScopes()
@@ -100,20 +106,15 @@ class Antrpx extends AbstractProvider
         }
     }
 
-    protected function createResourceOwner(array $response, AccessToken $token)
-    {
-        return new AntrpxUser($response);
-    }
-
     /**
-     * Requests user profiles.
+     * Requests user foot metrics.
      *
      * @param  AccessToken $token
      * @return mixed
      */
-    protected function fetchUserProfiles(AccessToken $token)
+    protected function fetchUserProfileFootMetrics($profileId, AccessToken $token)
     {
-        $url = $this->getUserProfilesUrl($token);
+        $url = $this->getUserProfileFootMetricsUrl($profileId, $token);
 
         $request = $this->getAuthenticatedRequest(self::METHOD_GET, $url, $token);
 
@@ -126,5 +127,21 @@ class Antrpx extends AbstractProvider
         }
 
         return $response;
+    }
+
+    protected function createUserProfileFootMetrics($profileId, AccessToken $token)
+    {
+        $response = $this->fetchUserProfileFootMetrics($profileId, $token);
+        return new AntrpxFootMetrics($response);
+    }
+
+    public function getUserProfileFootMetrics($profileId, AccessToken $token)
+    {
+        return $this->createUserProfileFootMetrics($profileId, $token);
+    }
+
+    protected function createResourceOwner(array $response, AccessToken $token)
+    {
+        return new AntrpxUser($response);
     }
 }
