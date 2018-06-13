@@ -65,12 +65,17 @@ class Antrpx extends AbstractProvider
 
     public function getBaseAccessTokenUrl(array $params)
     {
-        return static::BASE_ANTRPX_AUTH_SERVER_URL.'/token';
+        return static::BASE_ANTRPX_AUTH_SERVER_URL.'/token/';
     }
 
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
         return static::BASE_ANTRPX_RESOURCE_SERVER_URL.'/user';
+    }
+
+    public function getUserProfilesUrl(AccessToken $token)
+    {
+        return static::BASE_ANTRPX_RESOURCE_SERVER_URL.'/user/profiles';
     }
 
     protected function getDefaultScopes()
@@ -98,5 +103,28 @@ class Antrpx extends AbstractProvider
     protected function createResourceOwner(array $response, AccessToken $token)
     {
         return new AntrpxUser($response);
+    }
+
+    /**
+     * Requests user profiles.
+     *
+     * @param  AccessToken $token
+     * @return mixed
+     */
+    protected function fetchUserProfiles(AccessToken $token)
+    {
+        $url = $this->getUserProfilesUrl($token);
+
+        $request = $this->getAuthenticatedRequest(self::METHOD_GET, $url, $token);
+
+        $response = $this->getParsedResponse($request);
+
+        if (false === is_array($response)) {
+            throw new UnexpectedValueException(
+                'Invalid response received from Resource Server. Expected JSON.'
+            );
+        }
+
+        return $response;
     }
 }
